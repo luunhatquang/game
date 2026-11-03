@@ -1,15 +1,90 @@
 body {
     margin: 0;
     padding: 0;
-    color: rgba(255, 255, 255, 0.87);
+    color: #f3ead7;
     background-color: #0f0f0f;
+    font-family: system-ui, "Segoe UI", Roboto, sans-serif;
+    overflow: hidden;
+    user-select: none;
 }
 
-#app {
-    width: 100%;
+#app, #game-container {
+    width: 100vw;
     height: 100vh;
     overflow: hidden;
-    display: flex;
-    justify-content: center;
-    align-items: center;
 }
+
+/* ---------- HUD ---------- */
+#hud { position: fixed; inset: 0; pointer-events: none; font-size: 13px; }
+#hud .panel, #hud button, #hud canvas, #hud #screen, #hud .qitem { pointer-events: auto; }
+#hud.menu #topbar, #hud.menu #bottom { display: none; }
+.panel { background: rgba(38, 28, 20, 0.92); border: 2px solid #8a6a43; box-shadow: 0 2px 8px #0008; }
+
+#topbar { position: absolute; top: 0; left: 0; right: 0; height: 38px; display: flex; align-items: center; gap: 14px; padding: 0 12px; border-width: 0 0 2px; }
+#topbar .res { display: flex; align-items: center; gap: 4px; font-weight: 700; font-size: 15px; min-width: 64px; }
+#topbar .res img { width: 28px; height: 28px; object-fit: contain; }
+#topbar .full { color: #ff6b6b; }
+#topbar .spacer { flex: 1; }
+#age { color: #ffd77a; font-weight: 700; }
+#clock { font-variant-numeric: tabular-nums; opacity: 0.8; }
+#topbar button { background: #5b4229; color: #f3ead7; border: 1px solid #a7804f; border-radius: 4px; padding: 4px 10px; cursor: pointer; font-size: 13px; }
+#topbar button:hover { background: #73552f; }
+
+#messages { position: absolute; top: 48px; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.msg { background: rgba(20, 14, 10, 0.85); padding: 5px 14px; border-radius: 4px; border-left: 3px solid #7ac3ff; transition: opacity 0.6s; }
+.msg.warn { border-left-color: #ff6b6b; color: #ffd2c8; }
+.msg.fade { opacity: 0; }
+
+#bottom { position: absolute; left: 0; right: 0; bottom: 0; height: 168px; display: flex; gap: 10px; padding: 8px; border-width: 2px 0 0; box-sizing: border-box; }
+#minimap { width: 200px; height: 150px; background: #000; border: 1px solid #a7804f; cursor: pointer; image-rendering: pixelated; flex: none; }
+#info { flex: 1; min-width: 220px; overflow: hidden; padding: 4px 8px; line-height: 1.5; }
+#info .title { font-size: 16px; font-weight: 700; color: #ffd77a; }
+#info .enemy { color: #ff6b6b; font-size: 13px; }
+#info .hint { opacity: 0.7; }
+#info .row { display: flex; gap: 12px; align-items: flex-start; }
+#info .portrait { width: 72px; height: 72px; object-fit: contain; flex: none; background-color: #0004; border: 1px solid #6b5233; }
+.hpbar { position: relative; width: 180px; height: 14px; background: #300; border: 1px solid #000; margin: 2px 0; }
+.hpbar i { position: absolute; left: 0; top: 0; bottom: 0; background: #3ddc5a; }
+.hpbar span { position: absolute; inset: 0; text-align: center; font-size: 11px; line-height: 14px; color: #fff; text-shadow: 0 1px 1px #000; }
+.group { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+.unit-chip { display: flex; align-items: center; gap: 4px; background: #0003; padding: 2px 6px; border-radius: 3px; }
+.unit-chip .sprite { width: 34px; height: 34px; }
+.sprite { display: inline-block; background-repeat: no-repeat; }
+.queue { display: flex; gap: 4px; margin-top: 4px; }
+.qitem { position: relative; width: 44px; height: 44px; background: #0005; border: 1px solid #a7804f; cursor: pointer; }
+.qitem:hover { border-color: #ff6b6b; }
+.qitem .sprite, .qitem .age-icon { width: 44px; height: 44px; }
+.qitem em { position: absolute; bottom: 0; left: 0; right: 0; font-size: 10px; text-align: center; background: #000a; font-style: normal; }
+.age-icon { display: inline-flex; align-items: center; justify-content: center; font-weight: 900; font-size: 18px; color: #ffd77a; font-style: normal; }
+.placeholder { display: inline-flex; align-items: center; justify-content: center; background: #8b5a2b; color: #fff; font-size: 11px; font-style: normal; }
+
+#commands { display: grid; grid-template-columns: repeat(6, 62px); grid-auto-rows: 70px; gap: 4px; align-content: start; flex: none; }
+.cmd { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 2px; background: #5b4229; border: 1px solid #a7804f; border-radius: 4px; color: #f3ead7; cursor: pointer; overflow: hidden; }
+.cmd:hover { background: #73552f; border-color: #ffd77a; }
+.cmd img, .cmd .sprite, .cmd .placeholder, .cmd .age-icon { width: 48px; height: 48px; object-fit: contain; }
+.cmd span { font-size: 10px; line-height: 1.1; text-align: center; white-space: nowrap; }
+.cmd.disabled { filter: grayscale(1) brightness(0.6); }
+
+#tooltip { position: fixed; display: none; max-width: 280px; background: rgba(20, 14, 10, 0.96); border: 1px solid #a7804f; padding: 6px 10px; border-radius: 4px; pointer-events: none; z-index: 10; line-height: 1.5; }
+#tooltip b { color: #ffd77a; }
+.cost { display: inline-flex; align-items: center; gap: 2px; margin-right: 6px; font-weight: 700; }
+.cost img { width: 20px; height: 20px; object-fit: contain; }
+.bad { color: #ff7b7b; }
+
+#screen { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(0, 0, 0, 0.55); }
+#screen.hidden { display: none; }
+.dialog { min-width: 320px; background: rgba(38, 28, 20, 0.97); border: 3px solid #a7804f; border-radius: 8px; padding: 24px 32px; display: flex; flex-direction: column; gap: 10px; align-items: stretch; text-align: center; }
+.dialog h1 { margin: 0; font-size: 40px; color: #ffd77a; text-shadow: 0 3px 0 #5b4229; }
+.dialog h2 { margin: 0 0 6px; color: #ffd77a; }
+.dialog h2.win { color: #7dff9a; }
+.dialog h2.lose { color: #ff7b7b; }
+.dialog .sub { margin: 0 0 10px; opacity: 0.8; }
+.dialog .help { font-size: 12px; opacity: 0.7; margin: 6px 0 0; }
+.dialog button { font-size: 16px; padding: 8px 14px; background: #5b4229; color: #f3ead7; border: 1px solid #a7804f; border-radius: 5px; cursor: pointer; }
+.dialog button:hover:not(:disabled) { background: #73552f; }
+.dialog button:disabled { opacity: 0.45; cursor: default; }
+.dialog button.primary { background: #2f6b3a; border-color: #7dbd6a; }
+.dialog button.primary:hover { background: #3a8448; }
+.diff { display: flex; gap: 6px; justify-content: center; }
+.diff button { flex: 1; }
+.diff button.on { background: #a7804f; color: #1d140c; font-weight: 700; }

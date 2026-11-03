@@ -1,3 +1,42 @@
+# Đế Chế Tí Hon — RTS 2D trên trình duyệt
+
+Game chiến thuật thời gian thực lấy cảm hứng từ Age of Empires, viết bằng Phaser 4 + TypeScript + Vite, dùng bộ asset Tiny Swords trong `public/assets`.
+
+## Chạy game
+
+```bash
+npm install
+npm run dev-nolog      # mở http://localhost:8080
+npm test               # kiểm thử mô phỏng headless (không cần trình duyệt)
+```
+
+Kiểm thử trên trình duyệt (cần dev server đang chạy và Playwright): `node tests/e2e/ui.cjs <thư-mục-ảnh>`.
+
+## Điều khiển
+
+| Thao tác | Phím / chuột |
+|---|---|
+| Chọn / chọn nhiều | Chuột trái / kéo khung (Shift để thêm), bấm đúp chọn cùng loại |
+| Ra lệnh theo ngữ cảnh | Chuột phải (di chuyển, khai thác, xây tiếp, tấn công, đặt điểm tập trung) |
+| Camera | WASD / mũi tên / đưa chuột ra mép / bấm minimap / lăn chuột để zoom |
+| Nhóm | Ctrl+1..9 (hoặc Shift+1..9) tạo nhóm, 1..9 gọi lại, bấm 2 lần để tới nhóm |
+| Khác | Esc bỏ chọn/huỷ đặt, Delete huỷ, H nhà chính, `.` pawn rảnh, Space tới chỗ bị tấn công, P tạm dừng |
+
+## Cấu trúc
+
+| Thư mục | Nội dung |
+|---|---|
+| `src/game/config/` | Số liệu cân bằng (`balance.ts`) và độ khó AI (`ai.ts`) |
+| `src/game/sim/` | Logic game thuần TypeScript, không phụ thuộc Phaser: `World` (vòng tick), `GameMap`, `Pathfinder` (A*), `mapgen`, `commands`, `save` |
+| `src/game/sim/systems/` | `units` (state machine + di chuyển), `economy`, `production`, `combat`, `fog` |
+| `src/game/sim/ai/` | Đối thủ máy |
+| `src/game/render/` | Vẽ bằng Phaser: manifest asset/animation, `WorldRenderer` |
+| `src/game/input/` | Chuột, phím, camera, đặt công trình |
+| `src/game/ui/` | HUD DOM, minimap, âm thanh WebAudio |
+| `src/game/GameController.ts` | Vòng lặp: input → mô phỏng (delta time, chia bước ≤ 50ms) → vẽ → HUD |
+
+---
+
 # Phaser Vite TypeScript Template
 
 This is a Phaser project template that uses Vite for bundling. It supports hot-reloading for quick development workflow, includes TypeScript support and scripts to generate production-ready builds.
