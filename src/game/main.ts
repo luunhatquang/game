@@ -1,20 +1,16 @@
-import { AUTO, Game } from 'phaser';
+import { AUTO, Game, Scale } from 'phaser';
 import { GameScene } from './scenes/GameScene';
 
 //  Find out more information about the Game Config at:
 //  https://docs.phaser.io/api-documentation/typedef/types-core#gameconfig
 const config: Phaser.Types.Core.GameConfig = {
     type: AUTO,
-    width: 1024,
-    height: 600,
-    physics: {
-        default: 'arcade',
-        arcade: {
-            gravity : {x: 0, y: 0},
-            debug: true,
-        },
+    backgroundColor: '#47aba9',
+    scale: {
+        mode: Scale.RESIZE,
+        width: window.innerWidth,
+        height: window.innerHeight,
     },
-    backgroundColor: '#ffffff',
     scene: [GameScene]
 };
 
